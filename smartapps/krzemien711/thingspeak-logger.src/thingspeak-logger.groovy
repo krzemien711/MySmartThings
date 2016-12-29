@@ -27,7 +27,7 @@ definition(
 
 preferences {
     section("Log devices...") {
-        input "temps", "capability.temperatureMeasurement", title: "Temperature Sensors", required: false, multiple: true
+        input "temps", "capability.temperatureMeasurement", title: "Temperature Sensors", required: true, multiple: true
     }
 
     section ("ThinkSpeak channel id...") {
@@ -52,25 +52,25 @@ def initialize() {
     subscribe(temps, "temperature", handleTempEvent)
 
     updateChannelInfo()
-    log.debug "State: ${state.fieldMap}"
+    //log.debug "State: ${state.fieldMap}"
 }
 
 def handleTempEvent(evt) {
-	log.debug "Temperature Event Name: $evt.displayName"
-    log.debug "Temperature Event Attribute: $evt.name"
-    logField(evt,"field1") { it.toString() }
+	//log.debug "Temperature Event Name: $evt.displayName"
+    //log.debug "Temperature Event Attribute: $evt.name"
+    logField(evt) { it.toString() }
 
 }
 
 private getFieldMap(channelInfo) {
     def fieldMap = [:]
     channelInfo?.findAll { it.key?.startsWith("field") }.each { fieldMap[it.value?.trim()] = it.key }
-    log.debug "Retrieving map info for ${fieldMap}"
+    //log.debug "Retrieving map info for ${fieldMap}"
     return fieldMap
 }
 
 private updateChannelInfo() {
-    log.debug "Retrieving channel info for ${channelId}"
+    //log.debug "Retrieving channel info for ${channelId}"
 
     def url = "http://api.thingspeak.com/channels/${channelId}/feed.json?key=${channelKey}&results=0"
     httpGet(url) {
@@ -79,21 +79,21 @@ private updateChannelInfo() {
             log.debug "ThingSpeak data retrieval failed, status = ${response.status}"
         } else {
             state.channelInfo = response.data?.channel
-            log.debug "state.channelInfo = $state.channelInfo"
+            //log.debug "state.channelInfo = $state.channelInfo"
         }
     }
 
     state.fieldMap = getFieldMap(state.channelInfo)
-    log.debug "state.fieldMap = $state.fieldMap"
+    //log.debug "state.fieldMap = $state.fieldMap"
 }
 
-private logField(evt, field, Closure c) {
+private logField(evt, Closure c) {
     def deviceName = evt.displayName.trim()
     def fieldNum = state.fieldMap[deviceName]
 
     if (!fieldNum) {
         log.debug "Device '${deviceName}' has no field"
-        log.debug "fieldNum = '${fieldNum}'"
+        //log.debug "fieldNum = '${fieldNum}'"
         return
     }
     def value = c(evt.value)
