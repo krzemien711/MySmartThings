@@ -20,11 +20,6 @@ definition(
     author: "Kevin J. Rzemien",
     description: "Thingspeak Logger",
     category: "My Apps",
-    /*
-    iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
-    iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png",
-    iconX3Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png")
-    */
     iconUrl: "https://pbs.twimg.com/profile_images/805850886417174528/EhFtRCsF.jpg",
     iconX2Url: "https://pbs.twimg.com/profile_images/805850886417174528/EhFtRCsF.jpg",
     iconX3Url: "https://pbs.twimg.com/profile_images/805850886417174528/EhFtRCsF.jpg")
@@ -33,7 +28,6 @@ definition(
 preferences {
     section("Log devices...") {
         input "temps", "capability.temperatureMeasurement", title: "Temperature Sensors", required: false, multiple: true
-        // input "energy", "capability.energyMeter", title: "Energy", required: false, multiple: true
     }
 
     section ("ThinkSpeak channel id...") {
@@ -94,9 +88,6 @@ private updateChannelInfo() {
 }
 
 private logField(evt, field, Closure c) {
-    //def deviceName = evt.displayName.trim() + ':' + field
-    //def fieldNum = state.fieldMap[deviceName]
-    //def fieldNum = "field1"
     def deviceName = evt.displayName.trim()
     def fieldNum = state.fieldMap[deviceName]
 
