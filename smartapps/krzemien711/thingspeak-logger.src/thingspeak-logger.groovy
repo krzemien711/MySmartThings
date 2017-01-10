@@ -99,7 +99,7 @@ private logField(evt, Closure c) {
     def value = c(evt.value)
     log.debug "Logging to channel ${channelId}, ${fieldNum}, value ${value}"
 
-    def url = "http://api.thingspeak.com/update?key=${channelKey}&${fieldNum}=${value}"
+    def url = "http://api.thingspeak.com/update?key=${channelKey}&${fieldNum}=${value}&tstream=true"
     httpGet(url) { 
         response -> 
         if (response.status != 200 ) {
