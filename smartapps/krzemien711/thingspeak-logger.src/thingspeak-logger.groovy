@@ -1,7 +1,7 @@
 /**
  *  Thingspeak Logger
  *
- *  Copyright 2015 Kevin J. Rzemien
+ *  Copyright 2017 Kevin J. Rzemien
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
@@ -28,14 +28,22 @@ definition(
 preferences {
     section("Log devices...") {
         input "temps", "capability.temperatureMeasurement", title: "Temperature Sensors", required: true, multiple: true
+        input "contacts", "capability.contactSensor", title: "Contact Sensors", required: false, multiple: true
     }
 
-    section ("ThinkSpeak channel id...") {
-        input "channelId", "number", title: "Channel id"
+    section ("ThinkSpeak Temperature channel id...") {
+        input "channelId[0]", "number", title: "Channel id Temp"
     }
 
-    section ("ThinkSpeak write key...") {
-        input "channelKey", "text", title: "Channel key"
+    section ("ThinkSpeak Temperature write key...") {
+        input "channelKey[0]", "text", title: "Channel key Temp"
+    }
+    section ("ThinkSpeak Contact channel id...") {
+        input "channelId[1]", "number", title: "Channel id Contact"
+    }
+
+    section ("ThinkSpeak Contact write key...") {
+        input "channelKey[1]", "text", title: "Channel key Contact"
     }
 }
 
@@ -50,6 +58,7 @@ def updated() {
 
 def initialize() {
     subscribe(temps, "temperature", handleTempEvent)
+    subscribe(contacts, "contacts", handleContactEvent)
 
     updateChannelInfo()
     //log.debug "State: ${state.fieldMap}"
@@ -62,6 +71,13 @@ def handleTempEvent(evt) {
 
 }
 
+def handleContactEvent(evt) {
+	//log.debug "Temperature Event Name: $evt.displayName"
+    //log.debug "Temperature Event Attribute: $evt.name"
+    logField(evt) { it == "open" ? "1" : "0" }
+
+}
+
 private getFieldMap(channelInfo) {
     def fieldMap = [:]
     channelInfo?.findAll { it.key?.startsWith("field") }.each { fieldMap[it.value?.trim()] = it.key }
@@ -71,8 +87,8 @@ private getFieldMap(channelInfo) {
 
 private updateChannelInfo() {
     //log.debug "Retrieving channel info for ${channelId}"
-
-    def url = "http://api.thingspeak.com/channels/${channelId}/feed.json?key=${channelKey}&results=0"
+	//GET https://api.thingspeak.com/update?api_key=YU37UT2WQJWV01QZ&field1=0
+    def url = "http://api.thingspeak.com/channels/${channelId}/feed.json?key=${channelKey}&results=2"
     httpGet(url) {
         response ->
         if (response.status != 200 ) {
@@ -99,7 +115,7 @@ private logField(evt, Closure c) {
     def value = c(evt.value)
     log.debug "Logging to channel ${channelId}, ${fieldNum}, value ${value}"
 
-    def url = "http://api.thingspeak.com/update?key=${channelKey}&${fieldNum}=${value}&tstream=true"
+    def url = "http://api.thingspeak.com/update?key=${channelKey}&${fieldNum}=${value}"
     httpGet(url) { 
         response -> 
         if (response.status != 200 ) {
