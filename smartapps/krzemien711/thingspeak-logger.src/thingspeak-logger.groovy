@@ -27,7 +27,7 @@ definition(
 
 preferences {
     section("Log devices...") {
-        input "temps", "capability.temperatureMeasurement", title: "Temperature Sensors", required: true, multiple: true
+        input "temps", "capability.temperatureMeasurement", title: "Temperature Sensors", required: false, multiple: true
     }
 
     section ("ThinkSpeak channel id...") {
@@ -50,6 +50,7 @@ def updated() {
 
 def initialize() {
     subscribe(temps, "temperature", handleTempEvent)
+    //log.debug "Done with subscribe"
 
     updateChannelInfo()
     //log.debug "State: ${state.fieldMap}"
@@ -72,19 +73,19 @@ private getFieldMap(channelInfo) {
 private updateChannelInfo() {
     //log.debug "Retrieving channel info for ${channelId}"
 
-    def url = "http://api.thingspeak.com/channels/${channelId}/feed.json?key=${channelKey}&results=0"
+    def url = "https://api.thingspeak.com/channels/${channelId}/feed.json?key=${channelKey}&results=0"
+    
     httpGet(url) {
         response ->
         if (response.status != 200 ) {
             log.debug "ThingSpeak data retrieval failed, status = ${response.status}"
         } else {
+        	log.debug "ThingSpeak data retrieval successful, status = ${response.status}"
             state.channelInfo = response.data?.channel
-            //log.debug "state.channelInfo = $state.channelInfo"
         }
     }
 
     state.fieldMap = getFieldMap(state.channelInfo)
-    //log.debug "state.fieldMap = $state.fieldMap"
 }
 
 private logField(evt, Closure c) {
