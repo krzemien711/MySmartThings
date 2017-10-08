@@ -1,8 +1,15 @@
 /**
  * My Thingspeak Logger
- * Kevin J. Rzemien
+ *  Copyright 2017 Kevin J. Rzemien
  *
+ *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License. You may obtain a copy of the License at:
  *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
+ *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
+ *  for the specific language governing permissions and limitations under the License.
  */
 definition(
     name: "Thingspeak Logger Z",
@@ -65,48 +72,48 @@ def initialize() {
 
 
 def handleTemperatureEvent(evt) {
-	if (debugOn) {log.debug "EVENT is $evt.displayName"}
+    if (debugOn) {log.debug "EVENT is $evt.displayName"}
     if (debugOn) {log.debug "EVENT VALUE is $evt.value"}
     //log.debug "Device ID is $evt.deviceId"
     
     logField("temperature", evt) { it.toString() }
 }
 def handlehumidityEvent(evt) {
-	if (debugOn) {log.debug "EVENT is $evt.displayName"}
+    if (debugOn) {log.debug "EVENT is $evt.displayName"}
     if (debugOn) {log.debug "EVENT VALUE is $evt.value"}
     
     logField("humidity", evt) { it.toString() }
 }
 def handleContactEvent(evt) {
-	if (debugOn) {log.debug "EVENT is $evt.displayName"}
+    if (debugOn) {log.debug "EVENT is $evt.displayName"}
     if (debugOn) {log.debug "EVENT VALUE is $evt.value"}
     logField("contact", evt) { it == "open" ? "1" : "0" }
 }
 def handleAccelerationEvent(evt) {
-	if (debugOn) {log.debug "EVENT is $evt.displayName"}
+    if (debugOn) {log.debug "EVENT is $evt.displayName"}
     if (debugOn) {log.debug "EVENT VALUE is $evt.value"}
     logField("acceleration", evt) { it == "active" ? "1" : "0" }
 }
 def handleMotionEvent(evt) {
-	if (debugOn) {log.debug "EVENT is $evt.displayName"}
+    if (debugOn) {log.debug "EVENT is $evt.displayName"}
     if (debugOn) {log.debug "EVENT VALUE is $evt.value"}
     logField("motion", evt) { it == "active" ? "1" : "0" }
 }
 def handleSwitchEvent(evt) {
-	if (debugOn) {log.debug "EVENT is $evt.displayName"}
+    if (debugOn) {log.debug "EVENT is $evt.displayName"}
     if (debugOn) {log.debug "EVENT VALUE is $evt.value"}
     logField("switch", evt) { it == "on" ? "1" : "0" }
 }
 def handleThermostatTemperature(evt) {
-	if (debugOn) {log.debug "EVENT is $evt.displayName"}
+    if (debugOn) {log.debug "EVENT is $evt.displayName"}
     if (debugOn) {log.debug "EVENT VALUE is $evt.value"}
     if (debugOn) {log.debug "TStat Temperature event: $evt.value"}
     logField("thermostat.temperature", evt) { it.toString() }
 }
 def handleThermostatHumidity(evt) {
-	if (debugOn) {log.debug "EVENT is $evt.displayName"}
+    if (debugOn) {log.debug "EVENT is $evt.displayName"}
     if (debugOn) {log.debug "EVENT VALUE is $evt.value"}
-	if (debugOn) {log.debug "TStat Humidity event: $evt.value"}
+    if (debugOn) {log.debug "TStat Humidity event: $evt.value"}
     logField("thermostat.humidity", evt) { it.toString() }
 }
 
@@ -140,7 +147,7 @@ private updateChannelInfo() {
 
 
 private logField(capability, evt, Closure c) {
-	if (debugOn) {log.debug "Got Log Request: $capability $evt.displayName $evt.value"}
+    if (debugOn) {log.debug "Got Log Request: $capability $evt.displayName $evt.value"}
     def deviceName = evt.displayName.trim() + "." + capability
     def fieldNum = state.fieldMap[deviceName]
     if (!fieldNum) {
