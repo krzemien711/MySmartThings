@@ -28,6 +28,8 @@ definition(
 preferences {
     section("Log devices...") {
         input "temps", "capability.temperatureMeasurement", title: "Temperature Sensors", required: false, multiple: true
+        input "contacts", "capability.contactSensor", title: "Contacts", required: false, multiple: true
+        input "accelerations", "capability.accelerationSensor", title: "Accelerations", required: false, multiple: true        
     }
 
     section ("ThinkSpeak channel id...") {
@@ -50,28 +52,40 @@ def updated() {
 
 def initialize() {
     subscribe(temps, "temperature", handleTempEvent)
+    subscribe(contacts, "contact", handleContactEvent)
+    subscribe(accelerations, "acceleration", handleAccelerationEvent)
     //log.debug "Done with subscribe"
 
     updateChannelInfo()
-    //log.debug "State: ${state.fieldMap}"
+    log.debug "State: ${state.fieldMap}"
 }
 
 def handleTempEvent(evt) {
-	//log.debug "Temperature Event Name: $evt.displayName"
-    //log.debug "Temperature Event Attribute: $evt.name"
+	log.debug "Temperature Event Name: $evt.displayName"
+    log.debug "Temperature Event Attribute: $evt.name"
     logField(evt) { it.toString() }
 
 }
 
+def handleContactEvent(evt) {
+    logField(evt) { it == "open" ? "1" : "0" }
+}
+
+def handleAccelerationEvent(evt) {
+    logField(evt) { it == "active" ? "1" : "0" }
+}
+
 private getFieldMap(channelInfo) {
     def fieldMap = [:]
-    channelInfo?.findAll { it.key?.startsWith("field") }.each { fieldMap[it.value?.trim()] = it.key }
-    //log.debug "Retrieving map info for ${fieldMap}"
+    //channelInfo?.findAll { it.key?.startsWith("field") }.each { fieldMap[it.value?.trim()] = it.key }
+    channelInfo?.findAll { it.key?.startsWith("field") }.each { fieldMap[it.value?.trim().toLowerCase()+1] = it.key }
+    //log.debug "Key = ${it.key}"
+    log.debug "Retrieving map info for ${fieldMap}"
     return fieldMap
 }
 
 private updateChannelInfo() {
-    //log.debug "Retrieving channel info for ${channelId}"
+    log.debug "Retrieving channel info for ${channelId}"
 
     def url = "https://api.thingspeak.com/channels/${channelId}/feed.json?key=${channelKey}&results=0"
     
@@ -82,14 +96,18 @@ private updateChannelInfo() {
         } else {
         	log.debug "ThingSpeak data retrieval successful, status = ${response.status}"
             state.channelInfo = response.data?.channel
+            log.debug "ThingSpeak data = ${state.channelInfo}"
         }
     }
 
     state.fieldMap = getFieldMap(state.channelInfo)
+    log.debug "State fieldmap = ${state.fieldMap}"
 }
 
 private logField(evt, Closure c) {
-    def deviceName = evt.displayName.trim()
+    //def deviceName = evt.displayName.trim()
+    def deviceName = evt.displayName.trim().toLowerCase()
+    log.debug "Device Name = '${deviceName}'"
     def fieldNum = state.fieldMap[deviceName]
 
     if (!fieldNum) {
